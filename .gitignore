@@ -1,0 +1,19 @@
+# Python
+backend/.venv/
+backend/data/sessions/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.env
+backend/openapi.json
+*.pyc
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# OS
+.DS_Store

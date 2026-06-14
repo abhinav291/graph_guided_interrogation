@@ -1,0 +1,616 @@
+openapi: 3.1.0
+info:
+  title: Socratic Graph Learning API
+  description: PDF upload, agentic chunking, and session-bound Socratic assessment
+    trees.
+  version: 0.1.0
+paths:
+  /api/upload:
+    post:
+      tags:
+      - upload
+      summary: Upload PDF and create learning session
+      description: Accepts a PDF, parses with Docling, agentically chunks text (max
+        1000 chars, POC limit 10 chunks), generates headings and semantic hierarchy.
+      operationId: upload_document_api_upload_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_document_api_upload_post'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '422':
+          description: Parse or chunking failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/session/{session_id}/tree:
+    get:
+      tags:
+      - session
+      summary: Get session tree graph
+      description: Returns node headings and edges for React Flow rendering.
+      operationId: get_tree_api_session__session_id__tree_get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreeResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/session/{session_id}/node/{node_id}:
+    get:
+      tags:
+      - session
+      summary: Get node metadata
+      operationId: get_node_detail_api_session__session_id__node__node_id__get
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeDetailResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/session/{session_id}/node/{node_id}/generate:
+    post:
+      tags:
+      - session
+      summary: Generate or return cached Socratic assessment
+      operationId: generate_assessment_api_session__session_id__node__node_id__generate_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateAssessmentResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Entity
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+  /api/session/{session_id}/node/{node_id}/complete:
+    patch:
+      tags:
+      - session
+      summary: Mark node assessment as completed
+      operationId: complete_node_api_session__session_id__node__node_id__complete_patch
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteNodeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteNodeResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/session/{session_id}/node/{node_id}/fallback-log:
+    post:
+      tags:
+      - session
+      summary: Log custom fallback reasoning
+      operationId: log_fallback_api_session__session_id__node__node_id__fallback_log_post
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FallbackLogRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FallbackLogResponse'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      tags:
+      - health
+      summary: Health check
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+components:
+  schemas:
+    Body_upload_document_api_upload_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+          description: PDF document to ingest
+        llm_provider:
+          type: string
+          title: LLM Provider
+          description: LLM backend to use — groq or anthropic.
+          default: groq
+          enum:
+          - groq
+          - anthropic
+      type: object
+      required:
+      - file
+      title: Body_upload_document_api_upload_post
+    CompleteNodeRequest:
+      properties:
+        selected_path:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Selected Path
+        was_correct:
+          type: boolean
+          title: Was Correct
+      type: object
+      required:
+      - selected_path
+      - was_correct
+      title: CompleteNodeRequest
+    CompleteNodeResponse:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        is_completed:
+          type: boolean
+          title: Is Completed
+      type: object
+      required:
+      - node_id
+      - is_completed
+      title: CompleteNodeResponse
+    ErrorResponse:
+      properties:
+        detail:
+          anyOf:
+          - type: string
+          - additionalProperties: true
+            type: object
+          title: Detail
+      type: object
+      required:
+      - detail
+      title: ErrorResponse
+    FallbackLogRequest:
+      properties:
+        layer:
+          type: integer
+          maximum: 3.0
+          minimum: 0.0
+          title: Layer
+        selected_path_prefix:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Selected Path Prefix
+        custom_text:
+          type: string
+          minLength: 1
+          title: Custom Text
+      type: object
+      required:
+      - layer
+      - selected_path_prefix
+      - custom_text
+      title: FallbackLogRequest
+    FallbackLogResponse:
+      properties:
+        logged:
+          type: boolean
+          title: Logged
+        entry_id:
+          type: string
+          title: Entry Id
+      type: object
+      required:
+      - logged
+      - entry_id
+      title: FallbackLogResponse
+    GenerateAssessmentResponse:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        heading:
+          type: string
+          title: Heading
+        full_chunk_text:
+          type: string
+          title: Full Chunk Text
+        socratic_assessment:
+          $ref: '#/components/schemas/SocraticAssessment'
+      type: object
+      required:
+      - node_id
+      - heading
+      - full_chunk_text
+      - socratic_assessment
+      title: GenerateAssessmentResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          default: ok
+      type: object
+      title: HealthResponse
+    Layer2Branch:
+      properties:
+        layer_2_question:
+          type: string
+          title: Layer 2 Question
+        layer_2_options:
+          items:
+            $ref: '#/components/schemas/SocraticOption'
+          type: array
+          title: Layer 2 Options
+        layer_3_branches:
+          additionalProperties:
+            $ref: '#/components/schemas/Layer3Branch'
+          type: object
+          title: Layer 3 Branches
+      type: object
+      required:
+      - layer_2_question
+      - layer_2_options
+      title: Layer2Branch
+    Layer3Branch:
+      properties:
+        layer_3_question:
+          type: string
+          title: Layer 3 Question
+        layer_3_options:
+          items:
+            $ref: '#/components/schemas/SocraticOption'
+          type: array
+          title: Layer 3 Options
+      type: object
+      required:
+      - layer_3_question
+      - layer_3_options
+      title: Layer3Branch
+    McqBranch:
+      properties:
+        layer_1_question:
+          type: string
+          title: Layer 1 Question
+        layer_1_options:
+          items:
+            $ref: '#/components/schemas/SocraticOption'
+          type: array
+          title: Layer 1 Options
+        layer_2_branches:
+          additionalProperties:
+            $ref: '#/components/schemas/Layer2Branch'
+          type: object
+          title: Layer 2 Branches
+      type: object
+      required:
+      - layer_1_question
+      - layer_1_options
+      title: McqBranch
+    NodeDetailResponse:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        heading:
+          type: string
+          title: Heading
+        is_completed:
+          type: boolean
+          title: Is Completed
+        assessment_ready:
+          type: boolean
+          title: Assessment Ready
+        full_chunk_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Full Chunk Text
+      type: object
+      required:
+      - node_id
+      - heading
+      - is_completed
+      - assessment_ready
+      title: NodeDetailResponse
+    SocraticAssessment:
+      properties:
+        question_text:
+          type: string
+          title: Question Text
+        options:
+          additionalProperties:
+            type: string
+          type: object
+          title: Options
+        correct_option:
+          type: string
+          enum:
+          - A
+          - B
+          - C
+          - D
+          title: Correct Option
+        socratic_tree:
+          additionalProperties:
+            $ref: '#/components/schemas/McqBranch'
+          type: object
+          title: Socratic Tree
+        topper_path:
+          items:
+            type: string
+          type: array
+          title: Topper Path
+        topper_explanation:
+          type: string
+          title: Topper Explanation
+      type: object
+      required:
+      - question_text
+      - options
+      - correct_option
+      - socratic_tree
+      - topper_path
+      - topper_explanation
+      title: SocraticAssessment
+    SocraticOption:
+      properties:
+        id:
+          type: string
+          title: Id
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - id
+      - text
+      title: SocraticOption
+    TreeEdgeSchema:
+      properties:
+        source:
+          type: string
+          title: Source
+        target:
+          type: string
+          title: Target
+      type: object
+      required:
+      - source
+      - target
+      title: TreeEdgeSchema
+    TreeNode:
+      properties:
+        id:
+          type: string
+          title: Id
+        heading:
+          type: string
+          title: Heading
+        is_completed:
+          type: boolean
+          title: Is Completed
+          default: false
+      type: object
+      required:
+      - id
+      - heading
+      title: TreeNode
+    TreeResponse:
+      properties:
+        nodes:
+          items:
+            $ref: '#/components/schemas/TreeNode'
+          type: array
+          title: Nodes
+        edges:
+          items:
+            $ref: '#/components/schemas/TreeEdgeSchema'
+          type: array
+          title: Edges
+      type: object
+      required:
+      - nodes
+      - edges
+      title: TreeResponse
+    UploadResponse:
+      properties:
+        session_id:
+          type: string
+          title: Session Id
+        status:
+          type: string
+          title: Status
+        node_count:
+          type: integer
+          title: Node Count
+      type: object
+      required:
+      - session_id
+      - status
+      - node_count
+      title: UploadResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+tags:
+- name: health
+  description: Liveness checks
+- name: upload
+  description: PDF ingestion and session creation
+- name: session
+  description: Tree graph and node assessment endpoints

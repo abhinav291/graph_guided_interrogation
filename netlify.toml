@@ -1,0 +1,13 @@
+# Netlify — Next.js frontend
+# Set NEXT_PUBLIC_API_BASE in Netlify UI to your Render backend URL, e.g.
+#   https://upsc-prelims-api.onrender.com
+
+[build]
+  base = "frontend"
+  command = "npm ci && npm run build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "20"

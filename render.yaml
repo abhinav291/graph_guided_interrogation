@@ -1,0 +1,32 @@
+# Render Blueprint — backend API
+# https://render.com/docs/blueprint-spec
+#
+# After deploy: set CORS_ORIGINS to your Netlify URL(s), e.g.
+#   https://your-app.netlify.app,https://main--your-app.netlify.app
+#
+# Docling + PDF parsing needs RAM; free tier (512MB) may OOM — use Starter or higher.
+
+services:
+  - type: web
+    name: upsc-prelims-api
+    runtime: python
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.11"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-4-5
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: CHUNK_MAX_CHARS
+        value: "1000"
+      - key: CORS_ORIGINS
+        sync: false

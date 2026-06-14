@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --gold: #c9a227;
+  --gold-light: #e8c547;
+  --void: #050505;
+}
+
+body {
+  @apply bg-void text-cream antialiased;
+  background-image: radial-gradient(
+    ellipse at 50% -20%,
+    rgba(201, 162, 39, 0.08) 0%,
+    transparent 50%
+  );
+  background-attachment: fixed;
+}
+
+/* React Flow — golden dark overrides */
+.react-flow__node {
+  @apply text-sm;
+}
+
+.react-flow__controls {
+  @apply !bg-elevated !border-border-gold !shadow-panel;
+}
+
+.react-flow__controls-button {
+  @apply !bg-surface !border-border-gold !text-parchment;
+  fill: #c4b896 !important;
+}
+
+.react-flow__controls-button:hover {
+  @apply !bg-elevated;
+  fill: #e8c547 !important;
+}
+
+.react-flow__minimap {
+  @apply !bg-surface !border !border-border-gold;
+}
+
+.react-flow__background pattern circle {
+  fill: #2a2418;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111111;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3d3420;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c9a227;
+}
+
+@layer components {
+  .btn-gold {
+    @apply rounded-lg bg-gold-gradient px-4 py-2.5 font-semibold text-void
+      shadow-gold transition-all duration-200
+      hover:shadow-gold-lg hover:brightness-110
+      disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none;
+  }
+
+  .card-gold {
+    @apply rounded-2xl border border-border-gold bg-panel shadow-panel;
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(201, 162, 39, 0.06);
+  }
+
+  .option-btn {
+    @apply w-full rounded-lg border border-border-gold bg-surface px-4 py-3
+      text-left text-sm leading-relaxed text-cream transition-all duration-150
+      hover:border-gold hover:bg-elevated hover:shadow-gold;
+  }
+
+  .label-gold {
+    @apply text-xs uppercase tracking-widest text-gold font-medium;
+  }
+}
