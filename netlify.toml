@@ -1,10 +1,15 @@
 # Netlify — Next.js frontend
-# Set NEXT_PUBLIC_API_BASE in Netlify UI to your Render backend URL, e.g.
-#   https://upsc-prelims-api.onrender.com
+#
+# Env (Netlify UI): NEXT_PUBLIC_API_BASE=https://YOUR-SERVICE.onrender.com
+#
+# If deploy fails with "publish directory cannot be the same as base directory":
+# Site settings → Build & deploy → clear Publish directory in the UI (leave blank).
+# This file sets publish = ".next" relative to base = "frontend" and overrides UI.
 
 [build]
   base = "frontend"
   command = "npm ci && npm run build"
+  publish = ".next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
